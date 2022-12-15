@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>"Tracks and songs" Data Base</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" 
+    rel="stylesheet" />
+</head>
+<body>
+    <h1 style= "text-align: center">"Tracks and songs" Data Base</h1>
+    <h2 style="padding-left: 15px">Add new track below</h2>
+    <form name="trackForm">
+        <input type="hidden" name="id" value="0" />
+        <div class="form-group">
+            <label style="padding-left: 15px" 
+            for="name">Title:</label>
+            <input class="form-control" name="name" />
+        </div>
+        <div class="form-group">
+            <label style="padding-left: 15px" 
+            for="author">Author:</label>
+            <input class="form-control" name="author" />
+        </div>
+        <div class="form-group">
+            <label style="padding-left: 15px" 
+            for="genre">Genre:</label>
+            <input class="form-control" name="genre" />
+        </div>
+        <div class="form-group">
+            <label style="padding-left: 15px" 
+            for="date">Release Date:</label>
+            <input class="form-control" name="date" />
+        </div>
+
+
+        <div class="panel-body">
+            <button type="submit" 
+            class="btn btn-sm btn-warning">Submit</button>
+            <a id="reset" class="btn btn-sm btn-warning">Reset</a>
+        </div>
+    </form>
+    <h1 style= "text-align: center">Tracklist</h1>
+    <table class="table table-condensed table-striped table-bordered">
+        <thead><tr><th>Id</th><th>Title</th><th>Author</th>
+            <th>Genre</th><th>Release Date</th><th>
+                
+            </th></tr></thead>
+        <tbody>
+        </tbody>
+    </table>
+   
+    <script>
+        // отримати перелік усіх книг
+        async function GetTracks() {
+            // запит і відповідь на нього
+            const response = await fetch("/api/songs", {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+            if (response.ok === true) {
+                const tracks = await response.json();
+                let rows = document.querySelector("tbody"); 
+                tracks.forEach(track => {
+                    rows.append(row(track));
+                });
+            }
+        }
+        // отримати тільки одну книгу
+        async function GetTrack(id) {
+            const response = await fetch("/api/songs/" + id, {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+            if (response.ok === true) {
+                const track = await response.json();
+                const form = document.forms["trackForm"];
+                form.elements["id"].value = track._id;
+                form.elements["name"].value = track.name;
+                form.elements["author"].value = track.author;
+                form.elements["genre"].value = track.genre;
+                form.elements["date"].value = track.date;
+            }
+        }
+        // додавання книги у базу даних
+        async function CreateTrack(trackName, trackAuthor, 
+            trackGenre, trackDate) {
+  
+            const response = await fetch("api/songs", {
+                method: "POST",
+                headers: { "Accept": "application/json", 
+                "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: trackName,
+                    author: trackAuthor,
+                    genre: trackGenre,
+                    date: parseInt(trackDate, 10)
+                })
+            });
+            if (response.ok === true) {
+                const track = await response.json();
+                reset();
+                document.querySelector("tbody").append(row(track));
+            }
+        }
+        // зміна інформації про книгу
+        async function EditTrack(trackId, trackName, trackAuthor, 
+            trackGenre, trackDate) {
+            const response = await fetch("api/songs", {
+                method: "PUT",
+                headers: { "Accept": "application/json", 
+                "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: trackId,
+                    name: trackName,
+                    author: trackAuthor,
+                    genre: trackGenre,
+                    date: parseInt(trackDate, 10)
+                })
+            });
+            if (response.ok === true) {
+                const track = await response.json();
+                reset();
+                document.querySelector
+                ("tr[data-rowid='" + track._id + "']")
+                .replaceWith(row(track));
+            }
+        }
+        // вилучення книги з бази даних
+        async function DeleteTrack(id) {
+            const response = await fetch("/api/songs/" + id, {
+                method: "DELETE",
+                headers: { "Accept": "application/json" }
+            });
+            if (response.ok === true) {
+                const track = await response.json();
+                document.querySelector
+                ("tr[data-rowid='" + track._id + "']")
+                .remove();
+            }
+        }
+  
+        // скидання інформації форми
+        function reset() {
+            const form = document.forms["trackForm"];
+            form.reset();
+            form.elements["id"].value = 0;
+        }
+        // створення рядка для таблиці
+        function row(track) {
+  
+            const tr = document.createElement("tr");
+            tr.setAttribute("data-rowid", track._id);
+  
+            const idTd = document.createElement("td");
+            idTd.append(track._id);
+            tr.append(idTd);
+  
+            const nameTd = document.createElement("td");
+            nameTd.append(track.name);
+            tr.append(nameTd);
+  
+            const authorTd = document.createElement("td");
+            authorTd.append(track.author);
+            tr.append(authorTd);
+
+            const genreTd = document.createElement("td");
+            genreTd.append(track.genre);
+            tr.append(genreTd);
+
+            const dateTd = document.createElement("td");
+            dateTd.append(track.date);
+            tr.append(dateTd);            
+              
+            const linksTd = document.createElement("td");
+  
+            const editLink = document.createElement("a");
+            editLink.setAttribute("data-id", track._id);
+            editLink.setAttribute("style", 
+                "cursor:pointer;padding:15px;");
+            editLink.append("Змінити");
+            editLink.addEventListener("click", e => {
+  
+                e.preventDefault();
+                GetTrack(track._id);
+            });
+            linksTd.append(editLink);
+  
+            const removeLink = document.createElement("a");
+            removeLink.setAttribute("data-id", track._id);
+            removeLink.setAttribute("style", 
+                "cursor:pointer;padding:15px;");
+            removeLink.append("Вилучити");
+            removeLink.addEventListener("click", e => {
+  
+                e.preventDefault();
+                DeleteTrack(track._id);
+            });
+  
+            linksTd.append(removeLink);
+            tr.appendChild(linksTd);
+  
+            return tr;
+        }
+        // скидання значень форми
+        document.getElementById("reset").click(function (e) {
+  
+            e.preventDefault();
+            reset();
+        })
+  
+        // відправлення форми
+        document.forms["trackForm"].addEventListener("submit", e => {
+            e.preventDefault();
+            const form = document.forms["trackForm"];
+            const id = form.elements["id"].value;
+            const name = form.elements["name"].value;
+            const author = form.elements["author"].value;
+            const genre = form.elements["genre"].value;
+            const date = form.elements["date"].value;
+
+            if (id == 0)
+                CreateTrack(name, author, genre, date);
+            else
+                EditTrack(id, name, author, genre, date);
+        });
+  
+        // завантаження всіх книг
+        GetTracks();
+    </script>
+</body>
+</html>

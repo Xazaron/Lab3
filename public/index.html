@@ -3,47 +3,45 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>"Tracks and songs" Data Base</title>
+    <title>База даних "серіали"</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" 
     rel="stylesheet" />
 </head>
 <body>
-    <h1 style= "text-align: center">"Tracks and songs" Data Base</h1>
-    <h2 style="padding-left: 15px">Add new track below</h2>
-    <form name="trackForm">
+    <h2 style="padding-left: 15px">Додати новий серіал</h2>
+    <form name="seriesForm">
         <input type="hidden" name="id" value="0" />
         <div class="form-group">
             <label style="padding-left: 15px" 
-            for="name">Title:</label>
+            for="name">Назва серіалу:</label>
             <input class="form-control" name="name" />
         </div>
         <div class="form-group">
             <label style="padding-left: 15px" 
-            for="author">Author:</label>
-            <input class="form-control" name="author" />
+            for="director">Режисер:</label>
+            <input class="form-control" name="director" />
         </div>
         <div class="form-group">
             <label style="padding-left: 15px" 
-            for="genre">Genre:</label>
+            for="genre">Жанр серіалу:</label>
             <input class="form-control" name="genre" />
         </div>
         <div class="form-group">
             <label style="padding-left: 15px" 
-            for="date">Release Date:</label>
+            for="date">Дата випуску:</label>
             <input class="form-control" name="date" />
         </div>
 
-
         <div class="panel-body">
             <button type="submit" 
-            class="btn btn-sm btn-warning">Submit</button>
-            <a id="reset" class="btn btn-sm btn-warning">Reset</a>
+            class="btn btn-sm btn-warning">Додати</button>
+            <a id="reset" class="btn btn-sm btn-warning">Відмінити</a>
         </div>
     </form>
-    <h1 style= "text-align: center">Tracklist</h1>
+    <h1 style= "text-align: center">Список серіалів</h1>
     <table class="table table-condensed table-striped table-bordered">
-        <thead><tr><th>Id</th><th>Title</th><th>Author</th>
-            <th>Genre</th><th>Release Date</th><th>
+        <thead><tr><th>Id</th><th>Назва серіалу</th><th>Режисер</th>
+            <th>Жанр серіалу</th><th>Дата випуску</th><th>
                 
             </th></tr></thead>
         <tbody>
@@ -51,150 +49,150 @@
     </table>
    
     <script>
-        // отримати перелік усіх книг
-        async function GetTracks() {
+        // отримати перелік усіх серіалів
+        async function GetSeriess() {
             // запит і відповідь на нього
-            const response = await fetch("/api/songs", {
+            const response = await fetch("/api/seriess", {
                 method: "GET",
                 headers: { "Accept": "application/json" }
             });
             if (response.ok === true) {
-                const tracks = await response.json();
+                const seriess = await response.json();
                 let rows = document.querySelector("tbody"); 
-                tracks.forEach(track => {
-                    rows.append(row(track));
+                seriess.forEach(series => {
+                    rows.append(row(series));
                 });
             }
         }
-        // отримати тільки одну книгу
-        async function GetTrack(id) {
-            const response = await fetch("/api/songs/" + id, {
+        // отримати тільки один серіал
+        async function GetFilm(id) {
+            const response = await fetch("/api/seriess/" + id, {
                 method: "GET",
                 headers: { "Accept": "application/json" }
             });
             if (response.ok === true) {
-                const track = await response.json();
-                const form = document.forms["trackForm"];
-                form.elements["id"].value = track._id;
-                form.elements["name"].value = track.name;
-                form.elements["author"].value = track.author;
-                form.elements["genre"].value = track.genre;
-                form.elements["date"].value = track.date;
+                const series = await response.json();
+                const form = document.forms["seriesForm"];
+                form.elements["id"].value = series._id;
+                form.elements["name"].value = series.name;
+                form.elements["director"].value = series.director;
+                form.elements["genre"].value = series.genre;
+                form.elements["date"].value = series.date;
             }
         }
-        // додавання книги у базу даних
-        async function CreateTrack(trackName, trackAuthor, 
-            trackGenre, trackDate) {
+        // додавання серіал у базу даних
+        async function CreateFilm(seriesName, seriesDirector, 
+        seriesGenre, seriesDate) {
   
-            const response = await fetch("api/songs", {
+            const response = await fetch("api/seriess", {
                 method: "POST",
                 headers: { "Accept": "application/json", 
                 "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    name: trackName,
-                    author: trackAuthor,
-                    genre: trackGenre,
-                    date: parseInt(trackDate, 10)
+                    name: seriesName,
+                    director: seriesDirector,
+                    genre: seriesGenre,
+                    date: parseInt(seriesDate, 10)
                 })
             });
             if (response.ok === true) {
-                const track = await response.json();
+                const series = await response.json();
                 reset();
-                document.querySelector("tbody").append(row(track));
+                document.querySelector("tbody").append(row(series));
             }
         }
-        // зміна інформації про книгу
-        async function EditTrack(trackId, trackName, trackAuthor, 
-            trackGenre, trackDate) {
-            const response = await fetch("api/songs", {
+        // зміна інформації про серіал
+        async function EditFilm(seriesId, seriesName, seriesDirector, 
+        seriesGenre, seriesDate) {
+            const response = await fetch("api/seriess", {
                 method: "PUT",
                 headers: { "Accept": "application/json", 
                 "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    id: trackId,
-                    name: trackName,
-                    author: trackAuthor,
-                    genre: trackGenre,
-                    date: parseInt(trackDate, 10)
+                    id: seriesId,
+                    name: seriesName,
+                    director: seriesDirector,
+                    genre: seriesGenre,
+                    date: parseInt(seriesDate, 10)
                 })
             });
             if (response.ok === true) {
-                const track = await response.json();
+                const series = await response.json();
                 reset();
                 document.querySelector
-                ("tr[data-rowid='" + track._id + "']")
-                .replaceWith(row(track));
+                ("tr[data-rowid='" + series._id + "']")
+                .replaceWith(row(series));
             }
         }
-        // вилучення книги з бази даних
-        async function DeleteTrack(id) {
-            const response = await fetch("/api/songs/" + id, {
+        // вилучення серіалу з бази даних
+        async function DeleteFilm(id) {
+            const response = await fetch("/api/seriess/" + id, {
                 method: "DELETE",
                 headers: { "Accept": "application/json" }
             });
             if (response.ok === true) {
-                const track = await response.json();
+                const series = await response.json();
                 document.querySelector
-                ("tr[data-rowid='" + track._id + "']")
+                ("tr[data-rowid='" + series._id + "']")
                 .remove();
             }
         }
   
-        // скидання інформації форми
+        // відміна інформації з форми
         function reset() {
-            const form = document.forms["trackForm"];
+            const form = document.forms["seriesForm"];
             form.reset();
             form.elements["id"].value = 0;
         }
         // створення рядка для таблиці
-        function row(track) {
+        function row(series) {
   
             const tr = document.createElement("tr");
-            tr.setAttribute("data-rowid", track._id);
+            tr.setAttribute("data-rowid", series._id);
   
             const idTd = document.createElement("td");
-            idTd.append(track._id);
+            idTd.append(series._id);
             tr.append(idTd);
   
             const nameTd = document.createElement("td");
-            nameTd.append(track.name);
+            nameTd.append(series.name);
             tr.append(nameTd);
   
-            const authorTd = document.createElement("td");
-            authorTd.append(track.author);
-            tr.append(authorTd);
+            const directorTd = document.createElement("td");
+            directorTd.append(series.director);
+            tr.append(directorTd);
 
             const genreTd = document.createElement("td");
-            genreTd.append(track.genre);
+            genreTd.append(series.genre);
             tr.append(genreTd);
 
             const dateTd = document.createElement("td");
-            dateTd.append(track.date);
+            dateTd.append(series.date);
             tr.append(dateTd);            
               
             const linksTd = document.createElement("td");
   
             const editLink = document.createElement("a");
-            editLink.setAttribute("data-id", track._id);
+            editLink.setAttribute("data-id", series._id);
             editLink.setAttribute("style", 
                 "cursor:pointer;padding:15px;");
             editLink.append("Змінити");
             editLink.addEventListener("click", e => {
   
                 e.preventDefault();
-                GetTrack(track._id);
+                GetFilm(series._id);
             });
             linksTd.append(editLink);
   
             const removeLink = document.createElement("a");
-            removeLink.setAttribute("data-id", track._id);
+            removeLink.setAttribute("data-id", series._id);
             removeLink.setAttribute("style", 
                 "cursor:pointer;padding:15px;");
             removeLink.append("Вилучити");
             removeLink.addEventListener("click", e => {
   
                 e.preventDefault();
-                DeleteTrack(track._id);
+                DeleteFilm(series._id);
             });
   
             linksTd.append(removeLink);
@@ -210,23 +208,23 @@
         })
   
         // відправлення форми
-        document.forms["trackForm"].addEventListener("submit", e => {
+        document.forms["seriesForm"].addEventListener("submit", e => {
             e.preventDefault();
-            const form = document.forms["trackForm"];
+            const form = document.forms["seriesForm"];
             const id = form.elements["id"].value;
             const name = form.elements["name"].value;
-            const author = form.elements["author"].value;
+            const director = form.elements["director"].value;
             const genre = form.elements["genre"].value;
             const date = form.elements["date"].value;
 
             if (id == 0)
-                CreateTrack(name, author, genre, date);
+                CreateFilm(name, director, genre, date);
             else
-                EditTrack(id, name, author, genre, date);
+                EditFilm(id, name, director, genre, date);
         });
   
-        // завантаження всіх книг
-        GetTracks();
+        // завантаження всіх серіалів
+        GetSeriess();
     </script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+//Dmytro Hordienko SMP Lab3
 const express = require("express");
 const MongoClient = require("mongodb").MongoClient;
 const objectId = require("mongodb").ObjectID;
@@ -16,87 +17,87 @@ app.use(express.static(__dirname + "/public"));
 mongoClient.connect(function(err, client){
     if(err) return console.log(err);
     dbClient = client;
-    app.locals.collection = client.db("songsdb")
-    .collection("songs");
+    app.locals.collection = client.db("seriessdb")
+    .collection("seriess");
     app.listen(3000, function(){
         console.log("Сервер чекає на підключення...");
     });
 });
 
-// для отримання книг
-app.get("/api/songs", function(req, res){
+// для отримання seriess
+app.get("/api/seriess", function(req, res){
         
     const collection = req.app.locals.collection;
-    collection.find({}).toArray(function(err, tracks){
+    collection.find({}).toArray(function(err, seriess){
          
         if(err) return console.log(err);
-        res.send(tracks)
+        res.send(seriess)
     });
      
 });
-// для отримання книги
-app.get("/api/songs/:id", function(req, res){
+// для отримання series
+app.get("/api/seriess/:id", function(req, res){
         
     const id = new objectId(req.params.id);
     const collection = req.app.locals.collection;
-    collection.findOne({_id: id}, function(err, track){
+    collection.findOne({_id: id}, function(err, series){
                
         if(err) return console.log(err);
-        res.send(track);
+        res.send(series);
     });
 });
 
-// для додавання книги в базу даних
-app.post("/api/songs", jsonParser, function (req, res) {
+// для додавання series в базу даних
+app.post("/api/seriess", jsonParser, function (req, res) {
        
     if(!req.body) return res.sendStatus(400);
        
-    const trackName = req.body.name;
-    const trackAuthor = req.body.author;
-    const trackGenre = req.body.genre;
-    const trackDate = req.body.date; 
-    const track = {name: trackName, author: trackAuthor, 
-        genre: trackGenre, date: trackDate};
+    const seriesName = req.body.name;
+    const seriesDirector = req.body.director;
+    const seriesGenre = req.body.genre;
+    const seriesDate = req.body.date; 
+    const series = {name: seriesName, director: seriesDirector, 
+        genre: seriesGenre, date: seriesDate};
        
     const collection = req.app.locals.collection;
-    collection.insertOne(track, function(err, result){
+    collection.insertOne(series, function(err, result){
                
         if(err) return console.log(err);
-        res.send(track);
+        res.send(series);
     });
 });
 
-// для вилучення книги із бази даних
-app.delete("/api/songs/:id", function(req, res){
+// для вилучення series із бази даних
+app.delete("/api/seriess/:id", function(req, res){
         
     const id = new objectId(req.params.id);
     const collection = req.app.locals.collection;
     collection.findOneAndDelete({_id: id}, function(err, result){
                
         if(err) return console.log(err);    
-        let track = result.value;
-        res.send(track);
+        let series = result.value;
+        res.send(series);
     });
 });
 
-// для оновлення інформації про книгу
-app.put("/api/songs", jsonParser, function(req, res){
+// для оновлення інформації про series
+app.put("/api/seriess", jsonParser, function(req, res){
         
     if(!req.body) return res.sendStatus(400);
     const id = new objectId(req.body.id);
-    const trackName = req.body.name;
-    const trackAuthor = req.body.author;
-    const trackGenre = req.body.genre;
-    const trackDate = req.body.date; 
+    const seriesName = req.body.name;
+    const seriesDirector = req.body.director;
+    const seriesGenre = req.body.genre;
+    const seriesDate = req.body.date; 
        
     const collection = req.app.locals.collection;
-    collection.findOneAndUpdate({_id: id}, { $set: {name: trackName, 
-        author: trackAuthor, genre: trackGenre, date: trackDate}},
+    collection.findOneAndUpdate({_id: id}, { $set: {name: seriesName, 
+        director: seriesDirector, genre: seriesGenre, date: seriesDate}},
          {returnOriginal: false },function(err, result){
                
         if(err) return console.log(err);     
-        const track = result.value;
-        res.send(track);
+        const series = result.value;
+        res.send(series);
     });
 });
  
